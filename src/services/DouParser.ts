@@ -1,6 +1,6 @@
 import axios from "axios";
 import { JSDOM, VirtualConsole } from 'jsdom';
-import _ from "lodash";
+import * as _ from "lodash";
 import { ParseResult } from "../model/ParseModel";
 
 
@@ -135,7 +135,7 @@ export class DouParser
 		const urlPattern : RegExp = new RegExp( `(${urlPrefix}[\\w/]+)`, 'i' );
 
 		//	在文本中查找匹配的 URL
-		const match = text.match(urlPattern);
+		const match = text.match( urlPattern );
 
 		//	如果找到了匹配的 URL，则返回它；否则返回 null
 		return ( Array.isArray( match ) && match.length > 0 ) ? match[ 0 ] : null;
