@@ -2,6 +2,7 @@
 /demo/downloads
 /.idea
 package-lock.json
+.DS_Store
 
 # Logs
 logs
