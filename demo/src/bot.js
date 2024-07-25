@@ -3,8 +3,8 @@ import _ from "lodash";
 import { TestUtil } from "debeem-utils";
 import { DouDownloader } from "doingbot";
 import { DouParser } from "doingbot";
-import { DouImageUtil, DouNetworkUtil } from "../../src/index.js";
-import { DouFileUtil } from "../../src/utils/DouFileUtil.js";
+import { DouImageUtil, DouNetworkUtil } from "doingbot";
+import { DouFileUtil } from "doingbot";
 import { DownloadQueue } from "./DownloadQueue.js";
 
 let lastText = null;
@@ -20,7 +20,7 @@ async function downloadFromQueue()
 	const clipboardText = downloadQueue.dequeue();
 	if ( ! _.isString( clipboardText ) || _.isEmpty( clipboardText ) )
 	{
-		return printLog( `empty clipboard text` );
+		return false;
 	}
 
 	const result = await douParser.parse( clipboardText );
@@ -52,13 +52,6 @@ async function downloadFromQueue()
 		printLog( `failed to download : ${ clipboardText }` );
 		downloadQueue.enqueue( clipboardText );
 	}
-
-	//	...
-	setTimeout( async () =>
-	{
-		await downloadThread();
-
-	}, 100 );
 }
 
 async function downloadVideo( result )
@@ -222,7 +215,7 @@ function threadClipboardMonitor()
 			if ( _.isString( douUrl ) && !_.isEmpty( douUrl ) )
 			{
 				downloadQueue.enqueue( lastText );
-				printLog( `A TikTok share was detected ${ lastText }` );
+				printLog( `detected ${ lastText }` );
 			}
 		}
 	}
@@ -238,9 +231,9 @@ async function threadDownloader()
 /**
  * 	start
  */
-console.log( `start monitoring the clipboard` );
+printLog( `start monitoring the clipboard` );
 setInterval( threadClipboardMonitor, 1000 );	//	每秒检查一次剪切板内容
-threadDownloader().then( res => console.log( res ) ).catch( err => console.error( err ) );
+threadDownloader().then( res => {} ).catch( err => console.error( err ) );
 
 
 

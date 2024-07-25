@@ -14,6 +14,6 @@ export * from "./services/DouParser";
 /**
  * 	utils
  */
-export * from "./utils/DouNetworkUtil";
+export * from "./utils/DouFileUtil";
 export * from "./utils/DouImageUtil";
 export * from "./utils/DouNetworkUtil";
