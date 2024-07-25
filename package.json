@@ -1,7 +1,9 @@
 {
 	"name": "doingbot",
 	"version": "1.0.0",
-	"description": "",
+	"description": "抖音视频/图片无水印下载SDK, 2024最新款，保持更新",
+	"main": "dist/index.js",
+	"browser": "dist/index.js",
 	"files": [
 		"dist",
 		"README.md"
