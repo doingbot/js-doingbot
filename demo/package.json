@@ -1,0 +1,17 @@
+{
+	"name": "doingbot-demo",
+	"version": "1.0.0",
+	"scripts": {
+		"start": "node src/bot.js"
+	},
+	"author": "",
+	"type": "module",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"clipboardy": "^4.0.0",
+		"debeem-utils": "^1.0.70",
+		"doingbot": "^1.0.1",
+		"lodash": "^4.17.21"
+	}
+}

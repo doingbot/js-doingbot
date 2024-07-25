@@ -83,9 +83,9 @@ describe( "DouDownload", () =>
 
 		it( "should download a set a images", async () =>
 		{
-			const douDownload = new DouParser();
+			const douParser = new DouParser();
 			const shareString = `4.84 复制打开抖音，看看【憨憨老板的图文作品】和平精英元宵打卡 # 和平精英元宵打卡 # 火箭少... https://v.douyin.com/iMa7HLTP/ U@l.pd rEH:/ 05/07 `;
-			const result = await douDownload.parse( shareString );
+			const result = await douParser.parse( shareString );
 			//console.log( `images result :`, result );
 			//
 			//	images result : {
