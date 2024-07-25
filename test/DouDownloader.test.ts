@@ -1,11 +1,11 @@
 import { describe, expect } from '@jest/globals';
-import { DouDownloader } from "../src/services/DouDownloader";
-import { DouParser } from "../src/services/DouParser";
-import { DouNetworkUtil } from "../src/utils/DouNetworkUtil";
+import { DouDownloader } from "../src";
+import { DouParser } from "../src";
+import { DouNetworkUtil } from "../src";
 import _ from "lodash";
 import { DouFileUtil } from "../src/utils/DouFileUtil";
 import { TestUtil } from "debeem-utils";
-import { DouImageUtil } from "../src/utils/DouImageUtil";
+import { DouImageUtil } from "../src";
 
 
 /**
