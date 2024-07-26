@@ -80,20 +80,37 @@ export class DouNetworkUtil
 	/**
 	 * 	detect content type by url
 	 *	@param url	{string}
+	 *	@param [method]	{string}
 	 *	@returns {Promise< string >}
 	 */
-	public static detectContentTypeByUrl( url : string ) : Promise< string >
+	public static detectContentTypeByUrl( url : string, method ?: string ) : Promise< string >
 	{
 		return new Promise( async ( resolve, reject ) =>
 		{
 			let contentType = ``;
 			try
 			{
-				const response = await axios.head( url );
+				let response = undefined;
+				switch ( String( method ).trim().toLowerCase() )
+				{
+					case 'get' :
+						response = await axios.get( url );
+						break;
+					default:
+						response = await axios.head( url );
+						break;
+				}
 				contentType = response.headers[ 'content-type' ];
 			}
 			catch ( err )
 			{
+				const error : any = err as any;
+				if ( 405 === error?.response?.status )
+				{
+					//	err.code	ERR_BAD_REQUEST
+					//	err.message	Request failed with status code 405
+					contentType = await this.detectContentTypeByUrl( url, 'get' );
+				}
 			}
 
 			resolve( contentType );
