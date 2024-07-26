@@ -24,13 +24,13 @@ describe( "DouParser", () =>
 	{
 		it( "should return a video url", async () =>
 		{
-			const douDownload = new DouParser();
+			const douParser = new DouParser();
 			const shareUrls = [
 				`5.38 复制打开抖音，看看【憨憨老板的作品】可爱的软软马卡龙 # 软软马卡龙 # 和平精英 #... https://v.douyin.com/iMaE4Jrk/ B@g.OX AGV:/ 03/08 `,
 			];
 			for ( const sUrl of shareUrls )
 			{
-				const result = await douDownload.parse( sUrl );
+				const result = await douParser.parse( sUrl );
 				//console.log( `[${ sUrl }] video result :`, result );
 				//
 				//    [https://v.douyin.com/iMU8r7VJ/] video result : {

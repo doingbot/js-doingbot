@@ -1,7 +1,6 @@
 import { Web3Digester } from "debeem-id";
 import _ from "lodash";
 import axios from "axios";
-import { ifError } from "assert";
 
 
 /**
@@ -14,9 +13,10 @@ export class DouNetworkUtil
 	 *
 	 * 	@param url			{string}
 	 * 	@param [specifiedExtension]	{string} use user specified file extension
+	 * 	@param [byFullUrl]		{boolean} compute hash by the full url
 	 * 	@returns {Promise< string >}
 	 */
-	public static computeFilenameByUrl( url : string, specifiedExtension ?: string ) : Promise<string>
+	public static computeFilenameByUrl( url : string, specifiedExtension ?: string, byFullUrl ?: boolean ) : Promise<string>
 	{
 		return new Promise( async ( resolve, reject ) =>
 		{
@@ -27,20 +27,31 @@ export class DouNetworkUtil
 					return reject( `DouNetworkUtil.computeFileHashByUrl :: invalid url` );
 				}
 
-				//	"https://p26-sign.douyinpic.com/tos-cn-i-0813c001/oQgAEBAFuEAfC7AAZ6BMLqIZPpzeDfPEGVGNWY~tplv-dy-lqen-new:1024:8194:q80.webp?x-expires=1724439600&x-signature=PwrTcjz6qsGKYJmWUczTAqAr0SI%3D&from=327834062&s=PackSourceEnum_DOUYIN_REFLOW&se=false&sc=image&biz_tag=aweme_images&l=2024072503261012EBB9526B6FE32CB9D4";
-				const parsedUrl = new URL( url );
-
-				//	"/tos-cn-i-0813c001/oQgAEBAFuEAfC7AAZ6BMLqIZPpzeDfPEGVGNWY~tplv-dy-lqen-new:1024:8194:q80.webp"
-				const pathname : string = parsedUrl.pathname;
-				if ( ! _.isString( pathname ) || _.isEmpty( pathname ) )
+				let computeSource = '';
+				if ( true === byFullUrl )
 				{
-					return reject( `DouNetworkUtil.computeFileHashByUrl :: failed to parse url` );
+					computeSource = url;
 				}
+				else
+				{
+					//	"https://p26-sign.douyinpic.com/tos-cn-i-0813c001/oQgAEBAFuEAfC7AAZ6BMLqIZPpzeDfPEGVGNWY~tplv-dy-lqen-new:1024:8194:q80.webp?x-expires=1724439600&x-signature=PwrTcjz6qsGKYJmWUczTAqAr0SI%3D&from=327834062&s=PackSourceEnum_DOUYIN_REFLOW&se=false&sc=image&biz_tag=aweme_images&l=2024072503261012EBB9526B6FE32CB9D4";
+					const parsedUrl = new URL( url );
+
+					//	"/tos-cn-i-0813c001/oQgAEBAFuEAfC7AAZ6BMLqIZPpzeDfPEGVGNWY~tplv-dy-lqen-new:1024:8194:q80.webp"
+					const pathname : string = parsedUrl.pathname;
+					if ( ! _.isString( pathname ) || _.isEmpty( pathname ) )
+					{
+						return reject( `DouNetworkUtil.computeFileHashByUrl :: failed to parse url` );
+					}
+
+					computeSource = pathname;
+				}
+
 				//	...
 				const keccakHash = ( await Web3Digester.hashObject( {
 					timestamp : 1,
 					wallet : `0x47b506704da0370840c2992a3d3d301fd3c260d3`,
-					pathname : pathname
+					url : computeSource
 				} ) ).replace( /^0x/, '' ).trim().toLowerCase();
 				let filename : string = ``;
 				if ( _.isString( specifiedExtension ) && ! _.isEmpty( specifiedExtension ) )

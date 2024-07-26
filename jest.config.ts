@@ -4,7 +4,7 @@
  */
 
 export default {
-	forceExit: true,
+	//forceExit: true,
 	// All imported modules in your tests should be mocked automatically
 	// automock: false,
 

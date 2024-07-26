@@ -26,11 +26,11 @@ async function downloadFromQueue()
 	const result = await douParser.parse( clipboardText );
 	if ( ! result || ! result.type || ! Array.isArray( result.list ) )
 	{
-		return printLog( `failed to parse` );
+		return printLog( `downloadFromQueue :: failed to parse` );
 	}
 	if ( 0 === result.list.length )
 	{
-		return printLog( `empty download url list` );
+		return printLog( `downloadFromQueue :: empty download url list` );
 	}
 
 	if ( 'video' === result.type )
@@ -39,19 +39,21 @@ async function downloadFromQueue()
 	}
 	else if ( `images` === result.type )
 	{
-		success = await downloadImages( result );
+		success = await downloadImage( result );
 	}
 
 	if ( success )
 	{
-		printLog( `download successfully : ${ clipboardText }` );
+		printLog( `downloadFromQueue :: download successfully : ${ clipboardText }` );
 	}
 	else
 	{
 		//	下载失败
-		printLog( `failed to download : ${ clipboardText }` );
+		printLog( `downloadFromQueue :: failed to download : ${ clipboardText }` );
 		downloadQueue.enqueue( clipboardText );
 	}
+
+	await TestUtil.sleep( 1000 );
 }
 
 async function downloadVideo( result )
@@ -68,11 +70,16 @@ async function downloadVideo( result )
 	}
 
 	const urlToDownload = result.list[ 0 ][ 0 ];
-	let filePathVideo = await DouNetworkUtil.computeFilenameByUrl( urlToDownload );
+	let filePathVideo = await DouNetworkUtil.computeFilenameByUrl( urlToDownload, undefined, true );
 	//console.log( `will download ${ urlToDownload } to file ${ filename }` );
 	if ( ! _.isString( filePathVideo ) || _.isEmpty( filePathVideo ) )
 	{
 		printLog( `downloadVideo :: failed to compute filePathVideo` );
+		return false;
+	}
+	if ( filePathVideo.includes( '.unknown' ) )
+	{
+		printLog( `downloadVideo :: failed to compute filePathVideo unknown` );
 		return false;
 	}
 
@@ -83,28 +90,33 @@ async function downloadVideo( result )
 	}
 
 	printLog( `downloadVideo :: start download ${ urlToDownload }` );
+	printLog( `downloadVideo :: save to ${ filePathVideo }` );
 	const downloader = new DouDownloader({
 		url: urlToDownload,
 		outputPath: filePathVideo,
 		numberOfThreads: 4,
 		timeout: 30000,
 	});
-	await downloader.downloadWithSingleThreaded();
+	try
+	{
+		await downloader.downloadWithSingleThreaded();
+	}
+	catch ( err ){}
 
 	//	...
 	return await DouFileUtil.fileExists( filePathVideo );
 }
 
-async function downloadImages( result )
+async function downloadImage( result )
 {
 	if ( ! result || ! result.type || 'images' !== result.type )
 	{
-		printLog( `downloadImages :: invalid result` );
+		printLog( `downloadImage :: invalid result` );
 		return false;
 	}
 	if ( ! Array.isArray( result.list ) || 0 === result.list.length )
 	{
-		printLog( `downloadImages :: empty result.list` );
+		printLog( `downloadImage :: empty result.list` );
 		return false;
 	}
 
@@ -120,19 +132,31 @@ async function downloadImages( result )
 		{
 			try
 			{
+				printLog( `downloadImage :: computeFilenameByUrl ${ urlToDownload }` );
 				let filePathWebp = await DouNetworkUtil.computeFilenameByUrl( urlToDownload );
 				let filePathPng = await DouNetworkUtil.computeFilenameByUrl( urlToDownload, `png` );
 				//console.log( `will download ${ urlToDownload } to file ${ filePathWebp }` );
 				//	    will download https://p3-sign.douyinpic.com/tos-cn-i-0813c001/ogCIdKafAn232Ngewo8GgnQD9A2dAnXbAAClAt~tplv-dy-aweme-images:q75.webp?x-expires=1724479200&x-signature=RWK%2FA9XEG0L6mNpoQfkmMDYI8Es%3D&from=327834062&s=PackSourceEnum_DOUYIN_REFLOW&se=false&sc=image&biz_tag=aweme_images&l=202407251430076C6CB98B85FA5C01CDFC to file downloads/3c539ad99facde7324fa53921fbe5c10e991dcd9061cd20463c1fe6828a6b121.webp
 				if ( ! _.isString( filePathWebp ) || _.isEmpty( filePathWebp ) )
 				{
-					printLog( `downloadImages :: failed to compute filePathWebp` );
+					printLog( `downloadImage :: failed to compute filePathWebp` );
 					continue;
 				}
+				if ( filePathWebp.includes( '.unknown' ) )
+				{
+					printLog( `downloadImage :: failed to compute filePathWebp unknown` );
+					return false;
+				}
+
 				if ( ! _.isString( filePathPng ) || _.isEmpty( filePathPng ) )
 				{
-					printLog( `downloadImages :: failed to compute filePathPng` );
+					printLog( `downloadImage :: failed to compute filePathPng` );
 					continue;
+				}
+				if ( filePathPng.includes( '.unknown' ) )
+				{
+					printLog( `downloadImage :: failed to compute filePathPng unknown` );
+					return false;
 				}
 
 				filePathWebp = `downloads/${ filePathWebp }`;
@@ -154,10 +178,14 @@ async function downloadImages( result )
 					numberOfThreads: 4,
 					timeout: 30000,
 				});
-				await downloader.downloadWithSingleThreaded();
+				try
+				{
+					await downloader.downloadWithSingleThreaded();
+				}
+				catch ( err ){}
 				if ( ! await DouFileUtil.fileExists( filePathWebp ) )
 				{
-					printLog( `downloadImages :: failed to download image: ${ filePathWebp }` );
+					printLog( `downloadImage :: failed to download image: ${ filePathWebp }` );
 					continue;
 				}
 

@@ -3,7 +3,7 @@ import { DouDownloader } from "../src";
 import { DouParser } from "../src";
 import { DouNetworkUtil } from "../src";
 import _ from "lodash";
-import { DouFileUtil } from "../src/utils/DouFileUtil";
+import { DouFileUtil } from "../src";
 import { TestUtil } from "debeem-utils";
 import { DouImageUtil } from "../src";
 
@@ -29,7 +29,8 @@ describe( "DouDownload", () =>
 		it( "should download a video", async () =>
 		{
 			const douDownload = new DouParser();
-			const shareString = `6.92 复制打开抖音，看看【任白的作品】能不能别再听那些悲伤的歌～ # 歌曲别听悲伤的歌 ... https://v.douyin.com/iMDawST4/ 09/07 i@P.xF OxF:/ `;
+			let shareString = `6.92 复制打开抖音，看看【任白的作品】能不能别再听那些悲伤的歌～ # 歌曲别听悲伤的歌 ... https://v.douyin.com/iMDawST4/ 09/07 i@P.xF OxF:/ `;
+			shareString = `1.79 复制打开抖音，看看【憨憨老板的作品】一款朴实无华的飞行器 # 镜域双华飞行器 # 和平... https://v.douyin.com/iMmV5NVq/ t@r.eB SYM:/ 08/14 `;
 			const result = await douDownload.parse( shareString );
 			//console.log( `video result :`, result );
 			//
@@ -60,7 +61,7 @@ describe( "DouDownload", () =>
 			}
 
 			const urlToDownload : string = result.list[ 0 ][ 0 ];
-			const filename : string = `downloads/${ await DouNetworkUtil.computeFilenameByUrl( urlToDownload ) }`;
+			const filename : string = `downloads/${ await DouNetworkUtil.computeFilenameByUrl( urlToDownload, undefined, true ) }`;
 			//console.log( `will download ${ urlToDownload } to file ${ filename }` );
 			expect( filename ).not.toBeNull();
 			expect( _.isString( filename ) && ! _.isEmpty( filename ) ).toBeTruthy();
@@ -84,7 +85,8 @@ describe( "DouDownload", () =>
 		it( "should download a set a images", async () =>
 		{
 			const douParser = new DouParser();
-			const shareString = `4.84 复制打开抖音，看看【憨憨老板的图文作品】和平精英元宵打卡 # 和平精英元宵打卡 # 火箭少... https://v.douyin.com/iMa7HLTP/ U@l.pd rEH:/ 05/07 `;
+			let shareString = `4.84 复制打开抖音，看看【憨憨老板的图文作品】和平精英元宵打卡 # 和平精英元宵打卡 # 火箭少... https://v.douyin.com/iMa7HLTP/ U@l.pd rEH:/ 05/07 `;
+			shareString = `6.66 复制打开抖音，看看【小童u的图文作品】我的胡思乱想可以织十三件毛衣  https://v.douyin.com/iMu9YhtV/ 06/27 K@w.SY vSL:/ `;
 			const result = await douParser.parse( shareString );
 			//console.log( `images result :`, result );
 			//
@@ -165,13 +167,16 @@ describe( "DouDownload", () =>
 				{
 					try
 					{
-						const filePathWebp : string = `downloads/${ await DouNetworkUtil.computeFilenameByUrl( urlToDownload ) }`;
-						const filePathPng : string = `downloads/${ await DouNetworkUtil.computeFilenameByUrl( urlToDownload, `png` ) }`;
-						//console.log( `will download ${ urlToDownload } to file ${ filePathWebp }` );
-						//	    will download https://p3-sign.douyinpic.com/tos-cn-i-0813c001/ogCIdKafAn232Ngewo8GgnQD9A2dAnXbAAClAt~tplv-dy-aweme-images:q75.webp?x-expires=1724479200&x-signature=RWK%2FA9XEG0L6mNpoQfkmMDYI8Es%3D&from=327834062&s=PackSourceEnum_DOUYIN_REFLOW&se=false&sc=image&biz_tag=aweme_images&l=202407251430076C6CB98B85FA5C01CDFC to file downloads/3c539ad99facde7324fa53921fbe5c10e991dcd9061cd20463c1fe6828a6b121.webp
+						let filePathWebp : string = await DouNetworkUtil.computeFilenameByUrl( urlToDownload );
+						let filePathPng : string = await DouNetworkUtil.computeFilenameByUrl( urlToDownload, `png` );
 						expect( filePathWebp ).not.toBeNull();
 						expect( _.isString( filePathWebp ) && ! _.isEmpty( filePathWebp ) ).toBeTruthy();
+						expect( filePathWebp.includes( '.unknown' ) ).toBeFalsy();
+						expect( _.isString( filePathPng ) && ! _.isEmpty( filePathPng ) ).toBeTruthy();
+						expect( filePathPng.includes( '.unknown' ) ).toBeFalsy();
 
+						filePathWebp = `downloads/${ filePathWebp }`;
+						filePathPng = `downloads/${ filePathPng }`;
 						if ( await DouFileUtil.fileExists( filePathWebp ) )
 						{
 							await DouFileUtil.deleteFile( filePathWebp );

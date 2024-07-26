@@ -11,7 +11,7 @@
 	"dependencies": {
 		"clipboardy": "^4.0.0",
 		"debeem-utils": "^1.0.70",
-		"doingbot": "^1.0.2",
+		"doingbot": "^1.0.3",
 		"lodash": "^4.17.21"
 	}
 }
