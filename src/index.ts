@@ -12,6 +12,13 @@ export * from "./services/DouParser";
 
 
 /**
+ * 	storage
+ */
+export * from "./storage/LevelDbManager";
+export * from "./storage/PersistentQueue";
+
+
+/**
  * 	utils
  */
 export * from "./utils/DouFileUtil";

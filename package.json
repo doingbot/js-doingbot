@@ -1,6 +1,6 @@
 {
 	"name": "doingbot",
-	"version": "1.0.4",
+	"version": "1.0.6",
 	"description": "抖音视频/图片无水印下载SDK, 2024最新款，保持更新",
 	"main": "dist/index.js",
 	"browser": "dist/index.js",
@@ -36,6 +36,7 @@
 		"debeem-id": "^1.0.23",
 		"debeem-utils": "^1.0.70",
 		"jsdom": "^24.1.1",
+		"level": "^8.0.1",
 		"lodash": "^4.17.21",
 		"sharp": "^0.33.4"
 	}
