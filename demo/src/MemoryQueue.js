@@ -1,4 +1,4 @@
-export class DownloadQueue
+export class MemoryQueue
 {
 	constructor()
 	{

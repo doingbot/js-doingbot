@@ -5,10 +5,10 @@ import { DouDownloader } from "doingbot";
 import { DouParser } from "doingbot";
 import { DouImageUtil, DouNetworkUtil } from "doingbot";
 import { DouFileUtil } from "doingbot";
-import { DownloadQueue } from "./DownloadQueue.js";
+import { PersistentQueue } from "doingbot";
 
 let lastText = null;
-const downloadQueue = new DownloadQueue();
+const downloadQueue = new PersistentQueue();
 
 
 
@@ -17,12 +17,14 @@ async function downloadFromQueue()
 	let success = false;
 
 	const douParser = new DouParser();
-	const clipboardText = downloadQueue.dequeue();
-	if ( ! _.isString( clipboardText ) || _.isEmpty( clipboardText ) )
+	const clipboardElement = await downloadQueue.dequeue();
+	if ( ! clipboardElement ||
+		! _.isString( clipboardElement.value ) || _.isEmpty( clipboardElement.value ) )
 	{
 		return false;
 	}
 
+	const clipboardText = clipboardElement.value;
 	const result = await douParser.parse( clipboardText );
 	if ( ! result || ! result.type || ! Array.isArray( result.list ) )
 	{
@@ -50,7 +52,7 @@ async function downloadFromQueue()
 	{
 		//	下载失败
 		printLog( `downloadFromQueue :: failed to download : ${ clipboardText }` );
-		downloadQueue.enqueue( clipboardText );
+		await downloadQueue.enqueue( clipboardElement );
 	}
 
 	await TestUtil.sleep( 1000 );
@@ -228,7 +230,7 @@ function formatDateTime( date )
 
 
 
-function threadClipboardMonitor()
+async function threadClipboardMonitor()
 {
 	const douParser = new DouParser();
 
@@ -242,7 +244,10 @@ function threadClipboardMonitor()
 			const douUrl = douParser.extractDouYinUrl( lastText );
 			if ( _.isString( douUrl ) && !_.isEmpty( douUrl ) )
 			{
-				downloadQueue.enqueue( lastText );
+				await downloadQueue.enqueue({
+					timestamp: new Date().getTime(),
+					value: lastText,
+				} );
 				printLog( `detected ${ lastText }` );
 			}
 		}
@@ -256,12 +261,14 @@ async function threadDownloader()
 }
 
 
+
 /**
  * 	start
  */
-printLog( `start monitoring the clipboard` );
-setInterval( threadClipboardMonitor, 1000 );	//	每秒检查一次剪切板内容
-threadDownloader().then( res => {} ).catch( err => console.error( err ) );
+(async () =>
+{
+	printLog( `start monitoring the clipboard` );
+	setInterval( threadClipboardMonitor, 1000 );	//	每秒检查一次剪切板内容
+	await threadDownloader();
 
-
-
+})();
