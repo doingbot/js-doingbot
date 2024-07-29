@@ -1,8 +1,12 @@
 {
-	"name": "doingbot-demo",
+	"name": "air-dou",
 	"version": "1.0.0",
 	"scripts": {
-		"start": "node src/bot.js"
+		"start": "pm2 start src/bot.js --name airdou",
+		"restart": "pm2 restart airdou",
+		"stop": "pm2 stop airdou",
+		"log": "pm2 log airdou",
+		"uninstall": "pm2 stop airdou && pm2 delete airdou && pm2 save"
 	},
 	"author": "",
 	"type": "module",

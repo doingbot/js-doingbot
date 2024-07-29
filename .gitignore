@@ -1,8 +1,8 @@
 /levelDb
-**/levelDb
+demo/airDou/levelDb
 
 /downloads
-/demo/downloads
+/demo/airDou/downloads
 /.idea
 package-lock.json
 .DS_Store
